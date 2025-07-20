@@ -1,94 +1,114 @@
+// If the page is the Sign-in page
 if (document.title === "The Fictional Library | Sign-in") {
-    localStorage.setItem("username", JSON.stringify("Guest"));
+    // Only set "Guest" as default username if none is stored
+    if (!localStorage.getItem("username")) {
+        localStorage.setItem("username", JSON.stringify("Guest"));
+    }
+
     const form = document.getElementById("signin");
     const username = document.getElementById("username");
 
+    // Handle form submission for signing in
     form.addEventListener("submit", function(event) {
-        event.preventDefault();
-        const user = username.value.trim();
+        event.preventDefault(); // Prevent page refresh
+
+        const user = username.value.trim(); // Get and trim username input
+        if (user === "") return alert("Please enter a username.");
+        
+        // Save username to localStorage
         localStorage.setItem("username", JSON.stringify(user));
+
+        // Redirect to home page
         window.location.href = "Homepage.html";
     });
 }
 
+// If the page is the Homepage
 else if (document.title === "The Fictional Library | Home") {
+    // Retrieve stored username or use "Guest"
     const user = JSON.parse(localStorage.getItem("username")) || "Guest";
+
+    // Display welcome message
     const header = document.getElementById("welcome");
     const welcomemsg = document.createElement("h2");
     welcomemsg.textContent = "Welcome " + user;
     header.appendChild(welcomemsg);
 }
 
+// If the page is the Catalog
 else if (document.title === "The Fictional Library | Catalog") {
     const book_grid = document.querySelector(".book-grid");
     const links = book_grid.querySelectorAll("a");
 
+    // Add click listener to every book link
     links.forEach(link => {
-        link.addEventListener("click", () => {
-            event.preventDefault();
-            //get the book div
+        link.addEventListener("click", (event) => {
+            event.preventDefault(); // Prevent default link behavior
+
+            // Get the clicked book container
             const bookdiv = link.closest(".book");
 
-            //get and save title in form "Title: ____"
-            const title = bookdiv.querySelector(".title").textContent;
-            localStorage.setItem("title",JSON.stringify(title));
+            // Extract and store book info in localStorage
+            const title = bookdiv.querySelector(".title").textContent.replace("Title: ", "");
+            localStorage.setItem("title", JSON.stringify(title));
 
-            //get and save author
-            const author = bookdiv.querySelector(".author").textContent;
-            localStorage.setItem("author",JSON.stringify(author));
+            const author = bookdiv.querySelector(".author").textContent.replace("Author: ", "");
+            localStorage.setItem("author", JSON.stringify(author));
 
-            //get and save genre
-            const genre = bookdiv.querySelector(".genre").textContent;
-            localStorage.setItem("genre",JSON.stringify(genre));
+            const genre = bookdiv.querySelector(".genre").textContent.replace("Genre: ", "");
+            localStorage.setItem("genre", JSON.stringify(genre));
 
-            //get and save image link
             const image = bookdiv.querySelector("img");
-            localStorage.setItem("image",JSON.stringify(image.src));
-            
-            window.location.href = "Purchase.html";
-        })
-    })
+            localStorage.setItem("image", JSON.stringify(image.src));
 
+            // Redirect to purchase page
+            window.location.href = "Purchase.html";
+        });
+    });
 }
 
+// If the page is the Purchase page
 else if (document.title === "The Fictional Library | Purchase") {
-    const title = JSON.parse(localStorage.getItem("title")) || "Title: Unknown";
-    const author = JSON.parse(localStorage.getItem("author")) || "Author: Unknown";
-    const genre = JSON.parse(localStorage.getItem("genre")) || "Genre: Unknown";
+    // Get book details from localStorage
+    const title = JSON.parse(localStorage.getItem("title")) || "Unknown";
+    const author = JSON.parse(localStorage.getItem("author")) || "Unknown";
+    const genre = JSON.parse(localStorage.getItem("genre")) || "Unknown";
     const img_link = JSON.parse(localStorage.getItem("image")) || "";
 
-    console.log(author,title,genre);
-
+    // Update purchase page with book info
     const bookdiv = document.querySelector(".book");
     const image = bookdiv.querySelector("img");
     image.src = img_link;
 
-    const title_html = bookdiv.querySelector(".title");
-    title_html.textContent = title;
-
-    const author_html = bookdiv.querySelector(".author");
-    author_html.textContent = author;
-
-    const genre_html = bookdiv.querySelector(".genre");
-    genre_html.textContent = genre;
+    bookdiv.querySelector(".title").textContent = "Title: " + title;
+    bookdiv.querySelector(".author").textContent = "Author: " + author;
+    bookdiv.querySelector(".genre").textContent = "Genre: " + genre;
 
     const form = document.getElementById("purchaseform");
     const name = document.getElementById("name");
 
+    // Handle purchase form submission
     form.addEventListener("submit", function(event) {
-        event.preventDefault();
-        const user = name.value.trim();
-        console.log(name.value);
+        event.preventDefault(); // Prevent refresh
+
+        const user = name.value.trim(); // Get buyer name
+        if (user === "") return alert("Please enter your name.");
+
+        // Save buyer name
         localStorage.setItem("name", JSON.stringify(user));
+
+        // Go to confirmation page
         window.location.href = "Confirmation.html";
     });
-
 }
 
+// If the page is the Confirmation page
 else if (document.title === "The Fictional Library | Confirmation") {
+    // Retrieve user and title info from localStorage
     const name = JSON.parse(localStorage.getItem("name")) || "Guest";
-    const title = JSON.parse(localStorage.getItem("title")) || "Title: Unknown";
+    const title = JSON.parse(localStorage.getItem("title")) || "Unknown";
 
+    // Display confirmation messages
     document.getElementById("thanks").textContent = `Thank you ${name} for your purchase!`;
     document.getElementById("confirm").textContent = `Your order for "${title}" has been successfully placed.`;
 
